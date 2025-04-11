@@ -272,6 +272,25 @@ require('lazy').setup({
   -- Then, because we use the `config` key, the configuration only runs
   -- after the plugin has been loaded:
   --  config = function() ... end
+  {
+    'TimUntersberger/neogit',
+    dependencies = { 'sindrets/diffview.nvim', 'nvim-lua/plenary.nvim' },
+  },
+
+  {
+    'tpope/vim-fugitive',
+    lazy = false,
+    keys = {
+      {
+        '<leader>gs',
+        function()
+          vim.cmd 'vert Git'
+        end,
+        desc = 'git fugitive',
+      },
+      { '<leader>gv', ':Gvdiffsplit ', desc = 'git diff split' },
+    },
+  },
 
   { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
@@ -382,6 +401,10 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+      vim.keymap.set('n', '<leader>gd', ':DiffviewOpen<CR>', { desc = '[G]it [D]iff' })
+      vim.keymap.set('n', '<leader>gc', ':DiffviewClose<CR>', { desc = '[G]it Diff [C]lose' })
+      vim.keymap.set('n', '<leader>gt', ':Neogit<CR>', { desc = '[G]it [T]ab' })
+      vim.keymap.set('n', '<leader>tn', ':tabnew<CR>', { desc = '[T]ab [N]ew' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
@@ -565,7 +588,11 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
+        clangd = {
+          command = 'clangd',
+          filetypes = { 'c', 'cpp' },
+          rootPatterns = { '.git', '.clangd', 'compile_flags.txt', 'compile_commands.json' },
+        },
         -- gopls = {},
         -- pyright = {},
         -- rust_analyzer = {},
@@ -741,6 +768,7 @@ require('lazy').setup({
           --  Generally you don't need this, because nvim-cmp will display
           --  completions whenever it has completion options available.
           ['<C-Space>'] = cmp.mapping.complete {},
+          ['<CR>'] = cmp.mapping.confirm { select = true },
 
           -- Think of <c-l> as moving to the right of your snippet expansion.
           --  So if you have a snippet that's like:
@@ -778,13 +806,13 @@ require('lazy').setup({
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
+    'navarasu/onedark.nvim',
     priority = 1000, -- Make sure to load this before all the other start plugins.
     init = function()
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      vim.cmd.colorscheme 'onedark'
 
       -- You can configure highlights by doing something like:
       vim.cmd.hi 'Comment gui=none'
@@ -910,3 +938,12 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+
+local neogit = require 'neogit'
+neogit.setup {}
+
+vim.cmd 'set mouse='
+vim.cmd 'set scrolloff=999'
+vim.opt['tabstop'] = 8
+vim.opt['softtabstop'] = 8
+vim.opt['shiftwidth'] = 8
